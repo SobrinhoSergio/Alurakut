@@ -2,17 +2,11 @@ import { createGlobalStyle, ThemeProvider } from 'styled-components'
 import { AlurakutStyles } from '../src/lib/AlurakutCommons';
 
 const GlobalStyle = createGlobalStyle`
-
   /* Reset CSS (Necolas Reset CSS <3) */
-
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-
-  ul{
-    list-style: none;
   }
 
   body {
@@ -31,11 +25,13 @@ const GlobalStyle = createGlobalStyle`
     height: auto;
     display: block;
   }
+
+  ${AlurakutStyles}
 `
 
 const theme = {
   colors: {
-    primary: '#0070f3',
+    primary: 'red',
   },
 }
 

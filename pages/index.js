@@ -1,12 +1,14 @@
 import React from 'react';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/Box'
 import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
 
 
+
 function ProfileSidebar(propriedades) {
-  console.log(propriedades);
   return (
     <Box as="aside">
       <img src={`https://github.com/${propriedades.githubUser}.png`} style={{ borderRadius: '8px' }} />
@@ -56,9 +58,9 @@ function ProfiloRelationsBox(propriedades){
 
 }
 
-export default function Home() {
+export default function Home(props) {
 
-  const usuarioAleatorio = 'sobrinhosergio';
+  const usuarioAleatorio = props.githubUser;;
   
   const [comunidades, setComunidades] = React.useState([{
     id: '12802378123789378912789789123896123', 
@@ -101,9 +103,7 @@ export default function Home() {
       <MainGrid>
 
         <div className="profileArea" style={{gridArea: 'profileArea'}}>
-          <Box>
             <ProfileSidebar githubUser={usuarioAleatorio}/>
-          </Box>
         </div>
       
         <div className="welcomeArea" style={{gridArea: 'welcomeArea'}}>
@@ -116,7 +116,6 @@ export default function Home() {
           </Box>
 
           <Box>
-
             <h2 className="subTitle">O que você deseja fazer?</h2>
 
             <form onSubmit={function handleCriaComunidade(e){
@@ -139,32 +138,28 @@ export default function Home() {
 
               <div>
                 <input 
-                  type="text"
                   placeholder="Qual vai ser o nome da sua comunidade?" 
                   name="title" 
                   aria-label="Qual vai ser o nome da sua comunidade?"
+                  type="text"
                 />
               </div>
 
               <div>
                 <input
-                  type="text" 
-                  placeholder="Coloque uma URL para colocarmos de capa" 
+                  placeholder="Coloque uma URL para usarmos de capa" 
                   name="image" 
-                  aria-label="Coloque uma URL para colocarmos de capa"
+                  aria-label="Coloque uma URL para usarmos de capa"
                 />
               </div>
 
               <button>
-                Criar uma comunidade
+                Criar comunidade
               </button>
 
             </form>
 
           </Box>
-
-
-
         </div>
 
         <div className="profileRelationsArea" style={{gridArea: 'profileRelationsArea'}}>
@@ -219,4 +214,31 @@ export default function Home() {
     </>
   
   )
+}
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context)
+  const token = cookies.USER_TOKEN;
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth', {
+    headers: {
+        Authorization: token
+      }
+  })
+  .then((resposta) => resposta.json())
+
+  if(!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      }
+    }
+  }
+
+  const { githubUser } = jwt.decode(token);
+  return {
+    props: {
+      githubUser
+    }, // will be passed to the page component as props
+  }
 }
